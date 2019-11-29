@@ -23,7 +23,7 @@ void setup(){
 }
 void loop(){
     if(Serial.available()){
-        String inputStrs[4] = {"","",""};
+        String inputStrs[4] = {"","","",""};
         int inputStrsIndex = 0;
         char pinNumberText[4];
         char pinValueText[4];
