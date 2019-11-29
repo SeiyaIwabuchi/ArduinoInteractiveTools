@@ -1,3 +1,9 @@
+#define MAXIMUM_NUMBER_OF_PINS 19
+#if defined(__AVR_ATmega328P__)
+    #define MAXIMUM_NUMBER_OF_PINS 19
+#elif defined(__AVR_ATmega2560__)
+    #define MAXIMUM_NUMBER_OF_PINS 69
+#endif
 enum Mode{
     setPinMode,
     setPinValue,
@@ -6,6 +12,11 @@ enum Mode{
 };
 void setup(){
     Serial.begin(9600);
+    Serial.print("対話型の操作プログラムです。このボードで使用できるピンは");
+    Serial.print(2);
+    Serial.print("~");
+    Serial.print(MAXIMUM_NUMBER_OF_PINS);
+    Serial.println("までです。");
     Serial.println("setPinMode [pinNumber] [input/inputPullUp/output]:ピンの入出力方向を設定します。");
     Serial.println("setPinValue [pinNumber] [Value] [analog/digital]:ピンの値を設定します。");
     Serial.println("readPinValue [pinNumber] [analog/digital]:ピンの値を読みます。");
@@ -35,10 +46,25 @@ void loop(){
         switch (getMode(inputStrs[0]))
         {
         case setPinMode:
-            if(!(0 <= direction && direction <= 2)) Serial.println("入出力方向が間違っています。");
+            if(!(0 <= direction && direction <= 2)){
+                Serial.println("入出力方向が間違っています。");
+                Serial.println(0);
+                break;
+            }
+            if (!(2 <= pinNumber && pinNumber <= MAXIMUM_NUMBER_OF_PINS)){
+                Serial.println("ピン番号が間違っています。");
+                Serial.println(0);
+                break;
+            }
             pinMode(pinNumber,direction);
+            Serial.println(1);
             break;
         case setPinValue:
+            if (!(2 <= pinNumber && pinNumber <= MAXIMUM_NUMBER_OF_PINS)){
+                Serial.println("ピン番号が間違っています。");
+                Serial.println(0);
+                break;
+            }
             if (0 <= pinValue && pinValue <= 1 && inputStrs[3] == "digital"){
                 digitalWrite(pinNumber,pinValue);
             }else if (0 <= pinValue && inputStrs[3] == "analog"){
@@ -46,8 +72,14 @@ void loop(){
             }else{
                 digitalWrite(pinNumber,pinValue);
             }
+            Serial.println(1);
             break;
         case readPinValue:
+            if (!(2 <= pinNumber && pinNumber <= MAXIMUM_NUMBER_OF_PINS)){
+                Serial.println("ピン番号が間違っています。");
+                Serial.println(0);
+                break;
+            }
             if (inputStrs[2] == "digital"){
                 Serial.println(digitalRead(pinNumber));
             }else if (inputStrs[2] == "analog"){
@@ -55,6 +87,7 @@ void loop(){
             }else{
                 Serial.println(digitalRead(pinNumber));
             }
+            Serial.println(1);
             break;
         case UnknownCommand:
             Serial.println("不明なコマンドです。" + inputStrs[0]);
